@@ -1,0 +1,140 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{Part of Lab1 report}
+
+\date{March 2023}
+
+\begin{document}
+
+\maketitle
+
+\section{AVLTree}
+
+\subsection{Implementation}
+\par
+Before we start analyse the performance of the AVLTree, we need to talk about the implementation of the AVLTree.
+\par
+And in the operations of AVLTree, `Rotation' is the most important operation. Here are several examples of the Rotation:
+\par
+\subsubsection{Rotation}
+Because the rotation can be easily implemented by change the pointers, it has a time cost of O(1).
+\subsubsection{findKey}
+\par
+According to the characteristic of the AVL binary search tree, the worst search time will be O(h), where h is the height of the AVLTree. Thus time cost of findkey will be O(logn). 
+
+
+\subsubsection{insertion}
+\par
+Firstly, we need to find the position to insert the new element, which costs O(logn). There are 4 imbalanced conditions which need to be re-balanced, that is, LL, LR, RR and RL. After rotation, BF will decreased by 1, and all its ancestors will be influenced. Thus the maximum rotation number will be 2. That's still O(1).
+\par
+Finally, the total time cost of insertion is $O(logn)$.
+
+\subsubsection{deletion}
+Firstly, we need to find the position of the key to delete, which costs $O(logn)$. But the deletion of the key may cause the imbalance of the ancestors, and the worst case is that after balancing the subtree, the ancestor was still imbalanced. Thus, The balance operation will be at most \textbf{logn} times.
+\par
+Finally, the total time cost will be $O(log n) + O(1)\times O(logn)=O(logn)$
+\subsection{Performance}
+\subsubsection{Sequence}
+After every 2 insertion, the tree will be imbalanced and need to re-balance. The total time cost of insertion will be $$T(findKey) + T(balance)=O(1+2+2+3+3+4+...+(logn)-1+logn)$$$$+O(1)\times O({n\over 3})=O(log^2n)+O(n)=O(n)$$
+\subsubsection{Amortized}
+$$O(logn)$$
+total time cost: $$O(mlogn)$$
+where m is the number of operations
+\section{SplayTree}
+
+
+\subsection{Implementation}
+Same as the AVLTree, `Rotation' is the most important operation in the Splay-Tree as well. 
+\subsubsection{Rotation}
+Same as the AVLTree.
+\subsubsection{findKey}
+Same as the AVLTree.
+\subsubsection{Splay}
+To rotate the new element or newly found key to the root, we have a time cost of $O(1)\times O(h)$, Then because $h\leq logn$, the time cost of Splay will be log(n).
+\subsubsection{insertion}
+Firstly, find the position to insert the new element, which costs $O(log n)$ times. After insertion, the element need to be splayed to the root, so the total time cost is $O(logn)$
+\subsubsection{deletion}
+Firstly, findKey($O(logn)$) and Splay($O(logn)$) it to the root, then delete($O(1)$) it.
+\par
+The total time cost of deletion is $O(logn)$.
+
+\subsection{Performance}
+\subsubsection{Sequence}
+Every time after insertion, the new element will be the right son of the root, \textbf{findKey} only costs O(1), and then \textbf{Splay} it to the root also costs only $O(1)$, thus the average cost of insertion is $O(1)$, thus the total cost is $O(n)$.
+\subsubsection{Amortized}
+$$O(logn)$$ 
+total time cost: $$O(mlogn)$$
+Potential Function:$$\Phi(u)=rank(u)=log(size(u))$$
+$$\Phi(Tree)=\sum_{u\in T}\Phi(u)$$
+\par
+1) for single rotate: $u\rightarrow v$ 
+$$\hat{c_i} = c_i + \Delta\Phi (u) + \Delta\Phi (v)<1+\Delta\Phi(v)$$
+\par
+2) for zig-zag/zag-zig:
+$u\rightarrow v\rightarrow w$
+$$\hat{c_i} = c_i + \Delta\Phi (u) + \Delta\Phi (v) + \Delta\Phi(w)$$
+$$=c_i + r(u')-r(u)+r(v')-r(v)+r(w')-r(w)$$
+$$=c_i + r(u')+r(v')-r(v)-r(w)$$
+$$<c_i + r(u')+r(v')-2r(w)$$
+$$<c_i + 2log({{size(u')+ size(v')\over 2}})-2r(w)$$
+$$=c_i+2(r(w')-1)-2r(w)$$
+$$=2(r(w')-r(w))$$
+$$=2\Delta\Phi()$$
+\par
+3) for zig-zig/zag-zag: $u\rightarrow v\rightarrow w$
+$$\hat{c_i} = c_i + \Delta\Phi (u) + \Delta\Phi (v) + \Delta\Phi(w)$$
+$$=c_i + r(u')-r(u)+r(v')-r(v)+r(w')-r(w)$$
+$$=c_i + r(u')+r(v')-r(v)-r(w)$$
+$$<c_i + r(u')+r(v')-2r(w)$$
+$$<c_i + r(u') + r(w') + r(w)-3r(w)$$
+$$<3(r(w')-r(w))$$
+$$=3\Delta\Phi(w)$$
+$\therefore$ the amortized time cost of a single operation is O(logn)
+\par
+
+\section{Testing}
+\subsection{Data generator}
+\subsubsection{sequence}
+Sequentially insert number 1 to n, calculate the time spent.
+\subsubsection{random}
+Use func rand() to rearrange the sequence of 1 to n to generate a non-sequential array of input. Mark some of them insertions and the others deletion, calculate the time spent.
+\subsection{Result}
+Use the chrono lib to calculate the time spend during the insertion/deletion. Print the total time of different trees and compare the imbalanced times in a file.  
+\subsubsection{Graph}
+From the output of different scales, we can draw graph for different conditions:
+1) Sequential insertions:
+\textbf{insert pic1}
+\par
+We can see:
+\par
+1.BST $O(n^2)$
+\par
+2.AVL $O(n)$
+\par
+3.Splay $O(n)$
+\par 
+4. BBalpha $O(n)$
+\par
+2) Random mixed operations:
+\textbf{insert pic2}
+\par
+We can see:
+\par
+1.BST $O(mlogn)$
+\par
+2.AVL $O(mlogn)$
+\par
+3.Splay $O(mlogn)$
+\par 
+4.BBalpha $O(mlogn)$
+\par
+3) different $\alpha$ for $BB[\alpha]$ Tree: 
+
+\subsubsection{Analysis}
+The data in the graph shows the correctness of the theoretical performance of the trees, and we can find the $BB[\alpha]$ Tree has an excellent performance comparing to the splay tree and the avl Tree and have easier operations if choose a good $\alpha$.
+\section{Conclusion}
+During the experiment, we find that $BB[\alpha]$ Tree have a efficiency close to the AVLTree, but have easier operations than other trees.
+
+
+\end{document}
