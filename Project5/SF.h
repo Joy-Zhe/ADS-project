@@ -3,79 +3,85 @@
 #include <algorithm>
 #include <vector>
 using namespace std;
-struct Rectangle {
-    int width;
-    int height;
 
-    Rectangle(int width, int height) : width(width), height(height) {}
+template<typename T>
+class Rectangle {
+public:
+    T width;
+    T height;
+    Rectangle(T w, T h) : width(w), height(h) {}
 };
 
-struct Bin{
-    int maxWidth;
-    int nowHeight;
-    int remainWidth;
-
-    Bin(int w) : maxWidth(w), nowHeight(0), remainWidth(w) {}
-
-    void addRec(Rectangle &r) {
-        remainWidth -= r.width;
-        nowHeight = max(nowHeight, r.height);
-    }
-
-    bool canFit(Rectangle &r) {
-        if(r.width <= remainWidth)
-            return true;
-        return false;
-    }
+template<typename T>
+class Layer {
+public:
+    T width;
+    T height;
+    Layer(T w, T h) : width(w), height(h) {}
 };
-bool cmp (Rectangle t1, Rectangle t2) {
-    int tmp1 = t1.height;
-    int tmp2 = t2.height;
-    return tmp1 > tmp2;
+
+template<typename T>
+bool cmp (const Rectangle<T> &t1, const Rectangle<T> &t2) {
+    return t1.height > t2.height;
 }
-int SFPack(vector<Rectangle>& rectangles, int WBin, int m) { // m maybe set to 2?(half)
-    vector<Rectangle> upperHalf;
-    vector<Rectangle> lowerHalf;
-    for(auto& it:rectangles) {
-        if(it.width > WBin / m)
-            upperHalf.push_back(it);
-        else
-            lowerHalf.push_back(it);
-    }
-    sort(upperHalf.begin(), upperHalf.end(), cmp);
-    sort(lowerHalf.begin(), lowerHalf.end(), cmp);
-    vector<Bin> bin;
-    //pack larger ones
-    for(auto& r:upperHalf) {
-        bin.push_back(Bin(WBin));
-        //every big rectangle are going to have a new bin because of it width
-        bin.back().addRec(r);
-        for(auto tmp = lowerHalf.begin(); tmp != lowerHalf.end();) {
-            if(bin.back().canFit(*tmp)) {
-                bin.back().addRec(*tmp);
-                tmp = lowerHalf.erase(tmp); //added, delete
-            } else {
-                tmp++;
-            }
-        }
-    }
-    //pack smaller ones
-    for(auto& r:lowerHalf) {
+
+template<typename T>
+[[maybe_unused]] vector<Layer<T>> FFDH(vector<Rectangle<T>> &rectangles, T binWidth) {
+    vector<Layer<T>> layers;
+    sort(rectangles.begin(), rectangles.end(), cmp);
+    for(auto &r:rectangles) {
         bool f = false;
-        for(auto& it:bin) {
-            if(it.canFit(r)) {
-                it.addRec(r);
-                f = true;
+        for(auto &l:layers) {
+            if(l.width + r.width <= binWidth) {
+                l.width += r.width; //can fit in, add the rectangle to this layer
+                l.height = max(l.height, r.height); //update the height of the present layer
+                f = true; //added
                 break;
             }
         }
-        if(!f) {
-            bin.push_back(Bin(WBin)); //cannot store in any bins, new bin
-            bin.back().addRec(r);
+        if(!f)
+            layers.push_back(Layer<T>(r.width, r.height)); //cannot add, new a layer
+    }
+
+    return layers;
+}
+
+template<typename T>
+T SF(vector<Rectangle<T>> &rectangles, T binWidth) {
+    T height;
+    vector<Rectangle<T>> upperR;
+    vector<Rectangle<T>> lowerR;
+    double m = 0;
+    for(auto &r:rectangles) {
+        m = max(m, 1.0 * binWidth / r.width);
+    }
+    for(auto &r:rectangles) {
+        if(r.width > binWidth / m) {
+            upperR.push_back(r);
+        } else {
+            lowerR.push_back(r);
         }
     }
-    int ans = 0;
-    for(auto &it:bin)
-        ans = max(ans, it.nowHeight);
-    return ans;
+//    sort(upperR.begin(), upperR.end(), cmp);
+//    sort(lowerR.begin(), lowerR.end(), cmp);
+//no need to sort
+    vector<Layer<T>> layers = FFDH(upperR, binWidth);//FFDH the larger rectangles
+    vector<Layer<T>> leftSpace = FFDH(lowerR, binWidth / ( m + 2 ));//FFDH the smaller rectangles
+    //no need to rearrange the layers, to calculate the height, just need compare(maybe)
+    T wideHeight = 0; //calculate the height cannot insert
+    T narrowHeight = 0;
+    for(auto &l:layers) {
+        if(l.width > binWidth * (m + 1) / (m + 2)) {
+            wideHeight += l.height;
+        } else {
+            narrowHeight += l.height;
+        }
+    }
+    T h = 0;
+    for(auto &l:leftSpace) {
+        h += l.height;
+    }
+    if(h > narrowHeight)
+        return (wideHeight + h);
+    return (narrowHeight + h);
 }
