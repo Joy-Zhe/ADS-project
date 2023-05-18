@@ -28,7 +28,7 @@ bool cmp (const Rectangle<T> &t1, const Rectangle<T> &t2) {
 template<typename T>
 [[maybe_unused]] vector<Layer<T>> FFDH(vector<Rectangle<T>> &rectangles, T binWidth) {
     vector<Layer<T>> layers;
-    sort(rectangles.begin(), rectangles.end(), cmp);
+    sort(rectangles.begin(), rectangles.end(), cmp<T>);
     for(auto &r:rectangles) {
         bool f = false;
         for(auto &l:layers) {
@@ -77,11 +77,13 @@ T SF(vector<Rectangle<T>> &rectangles, T binWidth) {
             narrowHeight += l.height;
         }
     }
+    cout << wideHeight << " " << narrowHeight << endl;
     T h = 0;
     for(auto &l:leftSpace) {
         h += l.height;
     }
+    cout << h << endl;
     if(h > narrowHeight)
         return (wideHeight + h);
-    return (narrowHeight + h);
+    return (narrowHeight + wideHeight);
 }
