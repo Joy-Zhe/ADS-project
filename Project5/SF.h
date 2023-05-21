@@ -1,5 +1,5 @@
 #pragma once
-
+#include <iostream>
 #include <algorithm>
 #include <vector>
 using namespace std;
@@ -51,13 +51,15 @@ T SF(vector<Rectangle<T>> &rectangles, T binWidth) {
     T height;
     vector<Rectangle<T>> upperR;
     vector<Rectangle<T>> lowerR;
-    double m = 0;
+    double m = binWidth;
     for(auto &r:rectangles) {
-        m = max(m, 1.0 * binWidth / r.width);
+        m = min(m, 1.0 * binWidth / r.width);
     }
+    cout << binWidth / (m + 1) << endl;
     for(auto &r:rectangles) {
-        if(r.width > binWidth / m) {
+        if(r.width > binWidth / (m + 1)) {
             upperR.push_back(r);
+            cout << "up:" << r.width << endl;
         } else {
             lowerR.push_back(r);
         }
@@ -67,6 +69,7 @@ T SF(vector<Rectangle<T>> &rectangles, T binWidth) {
 //no need to sort
     vector<Layer<T>> layers = FFDH(upperR, binWidth);//FFDH the larger rectangles
     vector<Layer<T>> leftSpace = FFDH(lowerR, binWidth / ( m + 2 ));//FFDH the smaller rectangles
+    cout << "left size:" << leftSpace.size() << endl;
     //no need to rearrange the layers, to calculate the height, just need compare(maybe)
     T wideHeight = 0; //calculate the height cannot insert
     T narrowHeight = 0;
