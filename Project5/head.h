@@ -4,107 +4,173 @@
 #include <vector>
 using namespace std;
 
-template<typename T>
 class Rectangle {
 public:
-    T width;
-    T height;
-    Rectangle(T w, T h) : width(w), height(h) {}
+    double width;
+    double height;
+    double x;
+    double y;
+    Rectangle(double w, double h) : width(w), height(h), x(-1), y(-1) {}
 };
 
-template<typename T>
 class Layer {
 public:
-    T width;
-    T height;
-    Layer(T w, T h) : width(w), height(h) {}
+    double width;
+    double height;
+    double x;
+    double y;
+    vector<Rectangle> rectangles;
+    Layer(double w, double h, double X, double Y) : width(w), height(h), x(X), y(Y) {}
 };
 
-template<typename T>
-bool cmp (const Rectangle<T> &t1, const Rectangle<T> &t2) {
+bool cmp (const Rectangle &t1, const Rectangle &t2) {
     return t1.height > t2.height;
 }
 
-template<typename T>
-[[maybe_unused]] vector<Layer<T>> FFDH_(vector<Rectangle<T>> &rectangles, T binWidth) {
-    vector<Layer<T>> layers;
-    sort(rectangles.begin(), rectangles.end(), cmp<T>);
+vector<Layer> FFDH_(vector<Rectangle> &rectangles, const double &binWidth, const double &layerX, const double &layerY) {
+    vector<Layer> layers;
+    sort(rectangles.begin(), rectangles.end(), cmp);
+//    T curX = 0;
+    double curY = layerY;
     for(auto &r:rectangles) {
         bool f = false;
         for(auto &l:layers) {
-            if(l.width + r.width <= binWidth) {
+            if(l.width + r.width <= binWidth && r.height <= l.height) {
+                //set the position of this rectangle
+                r.x = l.x + l.width;
+                r.y = l.y;
                 l.width += r.width; //can fit in, add the rectangle to this layer
-                // l.height = max(l.eight, r.height);h //update the height of the present layer
+                l.rectangles.push_back(r);
+//                l.height = max(l.height, r.height); //update the height of the present layer
                 f = true; //added
                 break;
             }
         }
         if(!f){
-            layers.push_back(Layer<T>(r.width, r.height)); //cannot add, new a layer
+            Layer tmpL = Layer(r.width, r.height, layerX, curY);
+            r.x = layerX;
+            r.y = curY;
+            tmpL.rectangles.push_back(r);
+            layers.push_back(tmpL); //cannot add, new a layer
+            curY += r.height;
+//            cout << r.width << " " << r.height << " " << r.x << " " << r.y << endl;
         }
     }
-
     return layers;
 }
 
-template<typename T>
-T SF(vector<Rectangle<T>> &rectangles, T binWidth) {
-    T height;
-    vector<Rectangle<T>> upperR;
-    vector<Rectangle<T>> lowerR;
+vector<Rectangle> SF(vector<Rectangle> &rectangles, double binWidth, double ans) {
+    double height;
+    vector<Rectangle> upperR;
+    vector<Rectangle> lowerR;
+    vector<Rectangle> ansR;
     double m = binWidth ;
     for(auto &r:rectangles) {
         m = min(m, 1.0 * binWidth / r.width);
     }
     for(auto &r:rectangles) {
-        if(r.width > binWidth / (m+1)) {
+        if(r.width > binWidth / (m + 1)) {
             upperR.push_back(r);
         } else {
             lowerR.push_back(r);
         }
     }
-//    sort(upperR.begin(), upperR.end(), cmp);
-//    sort(lowerR.begin(), lowerR.end(), cmp);
+//    cout << "s1:" << binWidth / (m + 1) << endl;
 //no need to sort
-    vector<Layer<T>> layers = FFDH_(upperR, binWidth);//FFDH the larger rectangles
-    // vector<Layer<T>> leftSpace = FFDH(lowerR, binWidth / ( m + 2 ));//FFDH the smaller rectangles
-    //no need to rearrange the layers, to calculate the height, just need compare(maybe)
-    T wideHeight = 0; //calculate the height cannot insert
-    T narrowHeight = 0;
+    vector<Layer> layers = FFDH_(upperR, binWidth, 0, 0);//FFDH the larger rectangles
+    cout << endl;
+    double wideHeight = 0; //calculate the height cannot insert
+    double narrowHeight = 0;
+//    vector<Layer> rearrangedLayers;
+//cout << "s2:" << binWidth * (m + 1) / (m + 2) << endl;
     for(auto &l:layers) {
         if(l.width > binWidth * (m + 1) / (m + 2)) {
+            l.y = wideHeight;
             wideHeight += l.height;
-        } else {
-            narrowHeight += l.height;//用narrowHeight来计算左边的空白
+            for(auto &r:l.rectangles){
+                r.y = l.y;
+//                cout << r.width << " " << r.height << " " << r.x << " " << r.y << endl;
+            }
+        }
+        else {
+            narrowHeight += l.height; // 用narrowHeight来计算左边的空白
         }
     }
+    cout << endl;
+    double tmpWH = wideHeight;
+    //update the left layers
+    for(auto &l:layers) {
+        if(l.width <= binWidth * (m + 1) / (m + 2)) {
+            l.y = tmpWH;
+            tmpWH += l.height;
+            for(auto &r:l.rectangles){
+                r.y = l.y;
+//                cout << r.width << " " << r.height << " " << r.x << " " << r.y << endl;
+            }
+//            rearrangedLayers.push_back(l);
+        }
+    }
+    cout << endl;
+    vector<Rectangle> partR;
     // cout << wideHeight << " " << narrowHeight << endl;
-    for(auto &r:lowerR) {
-        if(narrowHeight<=0)
-            break;
-        else if (r.width <= binWidth / (m + 2) && r.height <= narrowHeight) {
-            narrowHeight -= r.height;
-            if(narrowHeight > 0) {
-                r.height = 0;
-                r.width = 0;//已经用过了
+    auto it = lowerR.begin();
+    while (it != lowerR.end()) {
+//        cout << it->width << " " << it->height << " " << it->x << " " << it->y << endl;
+        if (it->width <= binWidth / (m + 2) && it->height <= narrowHeight) {
+//            tmpNH -= it->height;
+//            if (tmpNH >= 0) {
+//                cout << it->width << " " << it->height << " " << it->x << " " << it->y << endl;
+                partR.push_back(*it);
+                it = lowerR.erase(it);
+//            }
+        } else {
+            it++;
+        }
+    }
+
+    vector<Layer> LayerR = FFDH_(partR, binWidth, binWidth * (m + 1) / (m + 2), wideHeight);
+    double heightR = 0;
+    for (auto &l:LayerR) {
+        heightR += l.height;
+        if(heightR > narrowHeight) {
+            for(auto &r:l.rectangles) {
+                lowerR.push_back(r);
             }
         }
     }
-    vector<Layer<T>> LowerLayer = FFDH_(lowerR, binWidth);
-    T h = 0;
+//    cout << endl;
+    vector<Layer> LowerLayer = FFDH_(lowerR, binWidth, 0, wideHeight + narrowHeight);
+//    cout << endl;
+    double h = 0;
+
     for(auto &l:LowerLayer) {
         h += l.height;
+        for(auto &r:l.rectangles) {
+//            cout << r.width << " " << r.height << " " << r.x << " " << r.y << endl;
+            ansR.push_back(r);
+        }
+    }
+    for(auto &l:LayerR) {
+        for(auto &r:l.rectangles) {
+//            cout << r.width << " " << r.height << " " << r.x << " " << r.y << endl;
+            ansR.push_back(r);
+        }
     }
     for(auto &l:layers) {
         h += l.height;
+        for(auto &r:l.rectangles) {
+//            cout << r.width << " " << r.height << " " << r.x << " " << r.y << endl;
+            ansR.push_back(r);
+        }
     }
-    return h;
+    ans = h;
+    return ansR;
 }
-template<typename T>
-T NFDH(vector<Rectangle<T>> &rectangles, T binWidth) {
-    T h=0;
-    sort(rectangles.begin(), rectangles.end(), cmp<T>);
-    Layer<T> l(0, rectangles[0].height);
+
+double NFDH(vector<Rectangle> &rectangles, const double &binWidth) {
+    double h = 0;
+    sort(rectangles.begin(), rectangles.end(), cmp);
+    Layer l(0, rectangles[0].height, 0, 0);
     for(auto &r:rectangles) {
         if(l.width + r.width <= binWidth) {
             l.width += r.width; //can fit in, add the rectangle to this layer
@@ -119,13 +185,11 @@ T NFDH(vector<Rectangle<T>> &rectangles, T binWidth) {
     return h;
 }
 
-template<typename T>
-T FFDH(vector<Rectangle<T>> &rectangles, T binWidth) {
-   vector<Layer<T>> layers=FFDH_(rectangles,binWidth);
-    T h=0;
+double FFDH(vector<Rectangle> &rectangles, const double &binWidth) {
+    vector<Layer> layers=FFDH_(rectangles,binWidth, 0, 0);
+    double h=0;
     for(auto &l:layers) {
         h += l.height;
     }
-    
     return h;
 }
