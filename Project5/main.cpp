@@ -18,11 +18,9 @@ std::vector<Rectangle> generateTestData(int n, double minWidth, double maxWidth)
     return rectangles;
 }
 
-void writeRectangleInfoToCSV(const string& algorithm, int n, const vector<Rectangle>& rectangles, double height, double time) {
-    std::ofstream outputFile("../../pyDiagram/results.csv",ios::app);
+void writeRectangleInfoToCSV(const string& algorithm, int n, const vector<Rectangle>& rectangles) {
+    std::ofstream outputFile("../../pyDiagram/" + algorithm + ".csv",ios::app);
     if (outputFile.is_open()) {
-//        outputFile << "algorithm" << "," << "n" << "," << "height" << "," << "time" << "\n";
-//        outputFile << algorithm << "," << n << "," << height << "," << time << "\n";
         outputFile << "Rectangle,Width,Height,X,Y\n";
         for (const auto& rect : rectangles) {
             outputFile << "R," << rect.width << "," << rect.height << "," << rect.x << "," << rect.y << "\n";
@@ -37,29 +35,55 @@ int main(){
 //    std::ofstream outputFile("results.csv");
 //    std::ofstream outputFile("../../pyDiagram/results.csv");
 //    outputFile << "algorithm,n,height,time\n";
-    std::ofstream outputFile("../../pyDiagram/results.csv");
+    std::ofstream outputFile("../../pyDiagram/SF.csv");
     outputFile.close();
+    std::ofstream outputFile1("../../pyDiagram/FFDH.csv");
+    outputFile1.close();
+    std::ofstream outputFile2("../../pyDiagram/NFDH.csv");
+    outputFile2.close();
     int n;
     cin >> n;
-        auto rectangles = generateTestData(n, 0, 1);
+    auto rectangles = generateTestData(n, 0, 1);
+
+    double test1;
+    auto test1R = FFDH(rectangles, 1, test1);
+    writeRectangleInfoToCSV("FFDH", n, test1R);
+
+    double test2;
+    auto test2R = NFDH(rectangles, 1, test2);
+    writeRectangleInfoToCSV("NFDH", n, test2R);
+
+    double test3;
+    auto test3R = SF(rectangles, 1, test3);
+    writeRectangleInfoToCSV("SF", n, test3R);
+
+    std::ofstream outputResults("../../pyDiagram/results.csv");
+    outputResults << "algorithm,n,height,time\n";
+    for (int i = 10; i <= 10000; i += 10) {
+        auto rectangle = generateTestData(i, 0, 1);
+
         auto start = std::chrono::high_resolution_clock::now();
+        double testFFDH;
+        auto _testFFDH = FFDH(rectangle, 1, testFFDH);
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> diff = end-start;
-//        outputFile << "FFDH," << n << "," << test1 << "," << diff.count() << "\n";
-//
-//        start = std::chrono::high_resolution_clock::now();
-//        auto test2 = NFDH(rectangles, 100);
-//        end = std::chrono::high_resolution_clock::now();
-//        diff = end-start;
-//        outputFile << "NFDH," << n << "," << test2 << "," << diff.count() << "\n";
+        outputResults << "FFDH," << i << "," << testFFDH << "," << diff.count() << "\n";
 
         start = std::chrono::high_resolution_clock::now();
-        double test3;
-        auto test3R = SF(rectangles, 1, test3);
+        double testNFDH;
+        auto _testNFDH = NFDH(rectangle, 1, testNFDH);
         end = std::chrono::high_resolution_clock::now();
         diff = end-start;
-//        outputFile << "SF," << n << "," << test3 << "," << diff.count() << "\n";
-        writeRectangleInfoToCSV("SF", n, test3R, test3, diff.count());
+        outputResults << "NFDH," << i << "," << testNFDH << "," << diff.count() << "\n";
 
+        // Test the Coffman et al. algorithm
+        double testSF;
+        start = std::chrono::high_resolution_clock::now();
+        auto _testSF  = SF(rectangle, 1, testSF);
+        end = std::chrono::high_resolution_clock::now();
+        diff = end-start;
+        outputResults << "SF," << i << "," << testSF << "," << diff.count() << "\n";
+    }
+    outputResults.close();
     return 0;
 }
