@@ -22,7 +22,7 @@ for index, row in rect_data.iterrows():
     height = row['Height']
     x = row['X']
     y = row['Y']
-    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='none')
+    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='blue')
     ax.add_patch(rect)
 
 # 设置图形标题和轴标签
@@ -51,7 +51,7 @@ for index, row in rect_data.iterrows():
     height = row['Height']
     x = row['X']
     y = row['Y']
-    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='none')
+    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='blue')
     ax.add_patch(rect)
 
 # 设置图形标题和轴标签
@@ -80,7 +80,7 @@ for index, row in rect_data.iterrows():
     height = row['Height']
     x = row['X']
     y = row['Y']
-    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='none')
+    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='blue')
     ax.add_patch(rect)
 
 # 设置图形标题和轴标签

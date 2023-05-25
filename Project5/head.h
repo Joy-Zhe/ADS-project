@@ -157,15 +157,15 @@ vector<Rectangle> NFDH(vector<Rectangle> &rectangles, const double &binWidth, do
     for(auto &r:rectangles) {
         if(l.width + r.width <= binWidth) {
             r.x = l.width;
-            r.y = h - l.height;
+            r.y = h;
             ansR.push_back(r);
             l.width += r.width; //can fit in, add the rectangle to this layer
         }
         else{//cannot add, new layer
+            h += l.height;
             r.x = 0;
             r.y = h;
             ansR.push_back(r);
-            h += l.height;
             l.width = r.width;
             l.height = r.height;
         }
