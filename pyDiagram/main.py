@@ -2,6 +2,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
+
+h_max = int(input())
 # 读取CSV文件
 data = pd.read_csv('SF.csv')
 
@@ -14,7 +16,7 @@ ax.set_aspect('auto')
 
 # 设置坐标轴范围
 ax.set_xlim(0, 1)  # 设置X轴范围
-ax.set_ylim(0, 40)  # 设置Y轴范围
+ax.set_ylim(0, h_max)  # 设置Y轴范围
 
 # 绘制矩形
 for index, row in rect_data.iterrows():
@@ -22,7 +24,7 @@ for index, row in rect_data.iterrows():
     height = row['Height']
     x = row['X']
     y = row['Y']
-    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='blue')
+    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='none')
     ax.add_patch(rect)
 
 # 设置图形标题和轴标签
@@ -43,7 +45,7 @@ ax.set_aspect('auto')
 
 # 设置坐标轴范围
 ax.set_xlim(0, 1)  # 设置X轴范围
-ax.set_ylim(0, 40)  # 设置Y轴范围
+ax.set_ylim(0, h_max)  # 设置Y轴范围
 
 # 绘制矩形
 for index, row in rect_data.iterrows():
@@ -51,7 +53,7 @@ for index, row in rect_data.iterrows():
     height = row['Height']
     x = row['X']
     y = row['Y']
-    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='blue')
+    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='none')
     ax.add_patch(rect)
 
 # 设置图形标题和轴标签
@@ -72,7 +74,7 @@ ax.set_aspect('auto')
 
 # 设置坐标轴范围
 ax.set_xlim(0, 1)  # 设置X轴范围
-ax.set_ylim(0, 40)  # 设置Y轴范围
+ax.set_ylim(0, h_max)  # 设置Y轴范围
 
 # 绘制矩形
 for index, row in rect_data.iterrows():
@@ -80,7 +82,7 @@ for index, row in rect_data.iterrows():
     height = row['Height']
     x = row['X']
     y = row['Y']
-    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='blue')
+    rect = patches.Rectangle((x, y), width, height, linewidth=1, edgecolor='black', facecolor='none')
     ax.add_patch(rect)
 
 # 设置图形标题和轴标签

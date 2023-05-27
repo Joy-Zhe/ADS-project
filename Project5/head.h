@@ -2,6 +2,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <cmath>
 using namespace std;
 
 class Rectangle {
@@ -63,9 +64,9 @@ vector<Rectangle> SF(vector<Rectangle> &rectangles, double binWidth, double &ans
     vector<Rectangle> upperR;
     vector<Rectangle> lowerR;
     vector<Rectangle> ansR;
-    double m = binWidth ;
+    double m = 100000000 ;
     for(auto &r:rectangles) {
-        m = min(m, 1.0 * binWidth / r.width);
+        m = min(m, floor(binWidth / r.width));
     }
     for(auto &r:rectangles) {
         if(r.width > binWidth / (m + 1)) {
@@ -92,10 +93,13 @@ vector<Rectangle> SF(vector<Rectangle> &rectangles, double binWidth, double &ans
             narrowHeight += l.height; // 用narrowHeight来计算左边的空白
         }
     }
+//    cout << wideHeight << " " << narrowHeight << endl;
     double tmpWH = wideHeight;
     //update the left layers
+//    cout << binWidth * (m + 1) / (m + 2) << endl;
     for(auto &l:layers) {
         if(l.width <= binWidth * (m + 1) / (m + 2)) {
+
             l.y = tmpWH;
             tmpWH += l.height;
             for(auto &r:l.rectangles){
@@ -107,21 +111,28 @@ vector<Rectangle> SF(vector<Rectangle> &rectangles, double binWidth, double &ans
     auto it = lowerR.begin();
     while (it != lowerR.end()) {
 //        cout << it->width << " " << it->height << " " << it->x << " " << it->y << endl;
-        if (it->width <= binWidth / (m + 2) && it->height <= narrowHeight) {
+        if (it->width <= binWidth / (m + 2)) {
                 partR.push_back(*it);
                 it = lowerR.erase(it);
         } else {
             it++;
         }
     }
-
-    vector<Layer> LayerR = FFDH_(partR, binWidth, binWidth * (m + 1) / (m + 2), wideHeight);
+//    cout << partR.size() << endl;
+    vector<Layer> LayerR = FFDH_(partR, binWidth / (m + 2), binWidth * (m + 1) / (m + 2), wideHeight);
     double heightR = 0;
+//    cout << LayerR.size() << endl;
     for (auto &l:LayerR) {
         heightR += l.height;
+//        cout << heightR << endl;
         if(heightR > narrowHeight) {
+//            cout << "1";
             for(auto &r:l.rectangles) {
                 lowerR.push_back(r);
+            }
+            auto it = l.rectangles.begin();
+            while (it != l.rectangles.end()) {
+                it = l.rectangles.erase(it);
             }
         }
     }
