@@ -2,6 +2,63 @@
 #include <chrono>
 #include <vector>
 
+void test(const int & size) {
+    srand(time(nullptr));
+
+    SkipList skipList;
+
+    const int largeSize = size;
+
+    // test insertion
+    std::cout << "Testing insert operation:" << std::endl;
+
+    std::vector<int> insertData;
+    for (int i = 0; i < largeSize; i++) {
+        insertData.push_back(rand() % largeSize);
+    }
+
+    auto start = std::chrono::steady_clock::now();
+    for (int i = 0; i < insertData.size(); i++) {
+        skipList.insert(insertData[i]);
+    }
+    auto end = std::chrono::steady_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "Insertion time for " << insertData.size() << " elements: " << duration.count() << " microseconds" << std::endl;
+
+    // test deletion
+    std::cout << "Testing remove operation:" << std::endl;
+
+    std::vector<int> removeData;
+    for (int i = 0; i < largeSize; i++) {
+        removeData.push_back(rand() % largeSize);
+    }
+
+    start = std::chrono::steady_clock::now();
+    for (int i = 0; i < removeData.size(); i++) {
+        skipList.remove(removeData[i]);
+    }
+    end = std::chrono::steady_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "Removal time for " << removeData.size() << " elements: " << duration.count() << " microseconds" << std::endl;
+
+    // test search
+    std::cout << "Testing search operation:" << std::endl;
+
+    std::vector<int> searchData;
+    for (int i = 0; i < largeSize; i++) {
+        searchData.push_back(rand() % largeSize);
+    }
+
+    start = std::chrono::steady_clock::now();
+    for (int i = 0; i < searchData.size(); i++) {
+        skipList.search(searchData[i]);
+    }
+    end = std::chrono::steady_clock::now();
+    duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "Search time for " << searchData.size() << " elements: " << duration.count() << " microseconds" << std::endl;
+}
+
+
 int main() {
     /*srand(time(nullptr));
 
@@ -55,63 +112,12 @@ int main() {
     std::cout << "Skip List after removal:" << std::endl;
     skipList.print();
     std::cout << std::endl;*/
-
-    srand(time(nullptr));
-
-    SkipList skipList;
-
-    // test size
-    const int smallSize = 1000;
-    const int mediumSize = 10000;
-    const int largeSize = 100000;
-
-    // test insertion
-    std::cout << "Testing insert operation:" << std::endl;
-
-    std::vector<int> insertData;
-    for (int i = 0; i < largeSize; i++) {
-        insertData.push_back(rand() % largeSize);
-    }
-
-    auto start = std::chrono::steady_clock::now();
-    for (int i = 0; i < insertData.size(); i++) {
-        skipList.insert(insertData[i]);
-    }
-    auto end = std::chrono::steady_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Insertion time for " << insertData.size() << " elements: " << duration.count() << " milliseconds" << std::endl;
-
-    // test deletion
-    std::cout << "Testing remove operation:" << std::endl;
-
-    std::vector<int> removeData;
-    for (int i = 0; i < largeSize; i++) {
-        removeData.push_back(rand() % largeSize);
-    }
-
-    start = std::chrono::steady_clock::now();
-    for (int i = 0; i < removeData.size(); i++) {
-        skipList.remove(removeData[i]);
-    }
-    end = std::chrono::steady_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Removal time for " << removeData.size() << " elements: " << duration.count() << " milliseconds" << std::endl;
-
-    // test search
-    std::cout << "Testing search operation:" << std::endl;
-
-    std::vector<int> searchData;
-    for (int i = 0; i < largeSize; i++) {
-        searchData.push_back(rand() % largeSize);
-    }
-
-    start = std::chrono::steady_clock::now();
-    for (int i = 0; i < searchData.size(); i++) {
-        skipList.search(searchData[i]);
-    }
-    end = std::chrono::steady_clock::now();
-    duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Search time for " << searchData.size() << " elements: " << duration.count() << " milliseconds" << std::endl;
+    test(100);
+    test(1000);
+    test(10000);
+    test(100000);
+    test(1000000);
+    test(10000000);
 
     return 0;
 }
