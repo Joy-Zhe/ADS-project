@@ -75,6 +75,8 @@ vector<Rectangle> SF(vector<Rectangle> &rectangles, double binWidth, double &ans
             lowerR.push_back(r);
         }
     }
+//    cout << binWidth / (m + 1) << endl;
+//    cout << upperR.size() << " " << lowerR.size() << endl;
 //no need to sort
     vector<Layer> layers = FFDH_(upperR, binWidth, 0, 0);//FFDH the larger rectangles
     double wideHeight = 0; //calculate the height cannot insert
@@ -93,13 +95,12 @@ vector<Rectangle> SF(vector<Rectangle> &rectangles, double binWidth, double &ans
             narrowHeight += l.height; // 用narrowHeight来计算左边的空白
         }
     }
-//    cout << wideHeight << " " << narrowHeight << endl;
+//    cout << "w, nheight:" << wideHeight << " " << narrowHeight << endl;
     double tmpWH = wideHeight;
     //update the left layers
-//    cout << binWidth * (m + 1) / (m + 2) << endl;
+//    cout << "2nd bound:" << binWidth * (m + 1) / (m + 2) << endl;
     for(auto &l:layers) {
         if(l.width <= binWidth * (m + 1) / (m + 2)) {
-
             l.y = tmpWH;
             tmpWH += l.height;
             for(auto &r:l.rectangles){
@@ -110,23 +111,19 @@ vector<Rectangle> SF(vector<Rectangle> &rectangles, double binWidth, double &ans
     vector<Rectangle> partR;
     auto it = lowerR.begin();
     while (it != lowerR.end()) {
-//        cout << it->width << " " << it->height << " " << it->x << " " << it->y << endl;
-        if (it->width <= binWidth / (m + 2)) {
+        if (it->width <= binWidth / (m + 2) && it->height <= narrowHeight) {
                 partR.push_back(*it);
                 it = lowerR.erase(it);
         } else {
             it++;
         }
     }
-//    cout << partR.size() << endl;
+//    cout << "partR:" << partR.size() << endl;
     vector<Layer> LayerR = FFDH_(partR, binWidth / (m + 2), binWidth * (m + 1) / (m + 2), wideHeight);
     double heightR = 0;
-//    cout << LayerR.size() << endl;
     for (auto &l:LayerR) {
         heightR += l.height;
-//        cout << heightR << endl;
         if(heightR > narrowHeight) {
-//            cout << "1";
             for(auto &r:l.rectangles) {
                 lowerR.push_back(r);
             }
