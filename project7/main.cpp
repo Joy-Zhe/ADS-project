@@ -1,8 +1,10 @@
 #include "SkipList.h"
 #include <chrono>
+#include <fstream>
+#include <iostream>
 #include <vector>
 
-void test(const int & size) {
+void test(const int &size, std::ofstream &outputFile) {
     srand(time(nullptr));
 
     SkipList skipList;
@@ -10,9 +12,8 @@ void test(const int & size) {
     const int largeSize = size;
 
     // test insertion
-    std::cout << "Testing insert operation:" << std::endl;
-
     std::vector<int> insertData;
+    srand(time(nullptr));
     for (int i = 0; i < largeSize; i++) {
         insertData.push_back(rand() % largeSize);
     }
@@ -23,12 +24,11 @@ void test(const int & size) {
     }
     auto end = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "Insertion time for " << insertData.size() << " elements: " << duration.count() << " microseconds" << std::endl;
+    outputFile << size << "," << duration.count();
 
     // test deletion
-    std::cout << "Testing remove operation:" << std::endl;
-
     std::vector<int> removeData;
+    srand(time(nullptr));
     for (int i = 0; i < largeSize; i++) {
         removeData.push_back(rand() % largeSize);
     }
@@ -39,12 +39,11 @@ void test(const int & size) {
     }
     end = std::chrono::steady_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "Removal time for " << removeData.size() << " elements: " << duration.count() << " microseconds" << std::endl;
+    outputFile << "," << duration.count();
 
     // test search
-    std::cout << "Testing search operation:" << std::endl;
-
     std::vector<int> searchData;
+    srand(time(nullptr));
     for (int i = 0; i < largeSize; i++) {
         searchData.push_back(rand() % largeSize);
     }
@@ -55,69 +54,22 @@ void test(const int & size) {
     }
     end = std::chrono::steady_clock::now();
     duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    std::cout << "Search time for " << searchData.size() << " elements: " << duration.count() << " microseconds" << std::endl;
+    outputFile << "," << duration.count() << std::endl;
 }
 
-
 int main() {
-    /*srand(time(nullptr));
+    std::ofstream outputFile("result.csv");
+    outputFile << "DataSize,InsertionTime,RemovalTime,SearchTime" << std::endl;
+    int step = 10;
+    for (int i = 10; i < 1000000; i += step) {
+        if(i / step >= 10)
+            step *= 10;
+        if(step >= 1000)
+            step = 1000;
+        test(i, outputFile);
+    }
 
-    SkipList skipList;
-
-    // insert
-    skipList.insert(5);
-    skipList.insert(10);
-    skipList.insert(3);
-    skipList.insert(8);
-    skipList.insert(1);
-    skipList.insert(7);
-    skipList.insert(4);
-    skipList.insert(9);
-    skipList.insert(2);
-    skipList.insert(6);
-
-    // print
-    std::cout << "Skip List after insertion:" << std::endl;
-    skipList.print();
-    std::cout << std::endl;
-
-    // search
-    int searchValue = 4;
-    std::cout << "Searching for " << searchValue << ": " << (skipList.search(searchValue) ? "Found" : "Not found") << std::endl;
-    searchValue = 11;
-    std::cout << "Searching for " << searchValue << ": " << (skipList.search(searchValue) ? "Found" : "Not found") << std::endl;
-    std::cout << std::endl;
-
-    // delete
-    int removeValue = 3;
-    std::cout << "Removing " << removeValue << " from the skip list." << std::endl;
-    skipList.remove(removeValue);
-    std::cout << "Skip List after removal:" << std::endl;
-    skipList.print();
-    std::cout << std::endl;
-
-    // test
-    skipList.insert(11);
-    skipList.insert(15);
-    skipList.insert(13);
-    skipList.insert(12);
-    skipList.insert(14);
-    std::cout << "Skip List after additional insertions:" << std::endl;
-    skipList.print();
-    std::cout << std::endl;
-
-    removeValue = 7;
-    std::cout << "Removing " << removeValue << " from the skip list." << std::endl;
-    skipList.remove(removeValue);
-    std::cout << "Skip List after removal:" << std::endl;
-    skipList.print();
-    std::cout << std::endl;*/
-    test(100);
-    test(1000);
-    test(10000);
-    test(100000);
-    test(1000000);
-    test(10000000);
+    outputFile.close();
 
     return 0;
 }

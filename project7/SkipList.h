@@ -4,8 +4,9 @@
 #include <ctime>
 #include <memory>
 #include <cstring>
-
-#define MAX_LEVEL 16
+#include <random>
+#define MAX_LEVEL 32
+#define RAND_P 0.25
 // maximum level
 
 class SkipNode {
@@ -33,19 +34,26 @@ public:
     SkipList() {
         head = new SkipNode(MAX_LEVEL, 0);
         level = 0;
+        srand(time(nullptr)); // Initialize random seed
     }
 
     ~SkipList() {
+        SkipNode* current = head->forward[0];
+        while (current != nullptr) {
+            SkipNode* next = current->forward[0];
+            delete current;
+            current = next;
+        }
         delete head;
     }
 
-    // randomize number of values
+    // randomize number of levels
     int randomLevel() {
-        int level = 0;
-        while (rand() % 2 == 0 && level < MAX_LEVEL) {
-            level++;
+        int r_level = 0;
+        while (rand() < RAND_P * RAND_MAX && r_level < MAX_LEVEL) {
+            r_level++;
         }
-        return level;
+        return r_level;
     }
 
     // search
@@ -114,9 +122,14 @@ public:
             }
             delete current;
 
-            while (level > 0 && head->forward[level] == nullptr) {
-                level--;
-            }
+            adjustBalance();
+        }
+    }
+
+    // balance adjustment
+    void adjustBalance() {
+        while (level > 0 && head->forward[level] == nullptr) {
+            level--;
         }
     }
 
